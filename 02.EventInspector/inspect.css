@@ -1,0 +1,25 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #B2AC88;
+}
+
+.container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.box {
+    width: 200px;
+    height: 200px;
+    border: 1px solid black;
+    position: relative;
+}
+
+#infoBox {
+    position: absolute;
+    background-color:#daf2fd ;
+    padding: 5px;
+    border: 1px solid black;
+    display: none;
+}
