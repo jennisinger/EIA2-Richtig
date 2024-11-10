@@ -10,6 +10,7 @@ interface Aufgabe {
 
 // Array, das alle Aufgaben speichert
 let aufgabenListe: Aufgabe[] = [];
+let bearbeiteteAufgabeId: number | null = null;  // Variable zur Speicherung der bearbeiteten Aufgaben-ID
 
 // Funktion, um die Aufgaben aus dem localStorage zu laden
 function ladeAufgabenAusStorage(): void {
@@ -91,6 +92,9 @@ function loescheAufgabe(id: number): void {
 function bearbeiteAufgabe(id: number): void {
     const aufgabe = aufgabenListe.find((aufgabe) => aufgabe.id === id);
     if (aufgabe) {
+        // Setze die ID der Aufgabe, die bearbeitet wird
+        bearbeiteteAufgabeId = id;
+
         // Fülle das Formular mit den bestehenden Werten der Aufgabe
         (document.getElementById("titel") as HTMLInputElement).value = aufgabe.titel;
         (document.getElementById("datum") as HTMLInputElement).value = aufgabe.datum;
@@ -100,31 +104,29 @@ function bearbeiteAufgabe(id: number): void {
 
         // Ändere den Button-Text und die Funktion zum Speichern
         const hinzufuegenButton = document.getElementById("hinzufuegenButton") as HTMLButtonElement;
-        hinzufuegenButton.textContent = "Speichern";
+        hinzufuegenButton.textContent = "Speichern";  // Buttontext ändern auf "Speichern"
+        
         hinzufuegenButton.onclick = () => {
-            // Aktualisiere die bearbeitete Aufgabe mit den neuen Werten
-            aufgabe.titel = (document.getElementById("titel") as HTMLInputElement).value;
-            aufgabe.datum = (document.getElementById("datum") as HTMLInputElement).value;
-            aufgabe.uhrzeit = (document.getElementById("uhrzeit") as HTMLInputElement).value;
-            aufgabe.bearbeiter = (document.getElementById("bearbeiter") as HTMLInputElement).value;
-            aufgabe.kommentar = (document.getElementById("kommentar") as HTMLTextAreaElement).value;
+            if (bearbeiteteAufgabeId !== null) {
+                const bearbeiteteAufgabe = aufgabenListe.find((aufgabe) => aufgabe.id === bearbeiteteAufgabeId);
+                if (bearbeiteteAufgabe) {
+                    // Aktualisiere die bearbeitete Aufgabe mit den neuen Werten
+                    bearbeiteteAufgabe.titel = (document.getElementById("titel") as HTMLInputElement).value;
+                    bearbeiteteAufgabe.datum = (document.getElementById("datum") as HTMLInputElement).value;
+                    bearbeiteteAufgabe.uhrzeit = (document.getElementById("uhrzeit") as HTMLInputElement).value;
+                    bearbeiteteAufgabe.bearbeiter = (document.getElementById("bearbeiter") as HTMLInputElement).value;
+                    bearbeiteteAufgabe.kommentar = (document.getElementById("kommentar") as HTMLTextAreaElement).value;
 
-            speichereAufgabenInStorage(); // Aufgaben im localStorage speichern
+                    // Speichere die Änderungen im LocalStorage
+                    speichereAufgabenInStorage();
+                    ladeAufgaben();  // Alle Aufgaben neu laden und anzeigen
 
-            // Entferne das alte DOM-Element der bearbeiteten Aufgabe
-            const aufgabeElement = document.querySelector(`[data-id="${aufgabe.id}"]`) as HTMLElement;
-            if (aufgabeElement) {
-                aufgabeElement.innerHTML = `
-                    <h3>${aufgabe.titel}</h3>
-                    <p>Datum: ${aufgabe.datum}, Uhrzeit: ${aufgabe.uhrzeit}</p>
-                    <p>Bearbeiter: ${aufgabe.bearbeiter}</p>
-                    <p>Kommentar: ${aufgabe.kommentar}</p>
-                    <button class="bearbeiten" data-id="${aufgabe.id}">Bearbeiten</button>
-                    <button class="loeschen" data-id="${aufgabe.id}">Löschen</button>
-                `;
+                    // Button zurücksetzen
+                    hinzufuegenButton.textContent = "Aufgabe hinzufügen";  // Zurück auf den ursprünglichen Text
+                    bearbeiteteAufgabeId = null;  // Aufgabenedition abschließen
+                    formular.reset();  // Formular zurücksetzen
+                }
             }
-
-            hinzufuegenButton.textContent = "Aufgabe hinzufügen"; // Button zurücksetzen
         };
     }
 }
@@ -138,7 +140,15 @@ formular.addEventListener("submit", (event) => {
     const uhrzeit = (document.getElementById("uhrzeit") as HTMLInputElement).value;
     const bearbeiter = (document.getElementById("bearbeiter") as HTMLInputElement).value;
     const kommentar = (document.getElementById("kommentar") as HTMLTextAreaElement).value;
-    hinzufuegenAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar);
+
+    // Wenn eine Aufgabe bearbeitet wird, aktualisiere diese
+    if (bearbeiteteAufgabeId !== null) {
+        // Speichern der bearbeiteten Aufgabe
+        hinzufuegenAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar);
+    } else {
+        hinzufuegenAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar);
+    }
+
     formular.reset(); // Formular zurücksetzen
 });
 

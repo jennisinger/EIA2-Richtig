@@ -96,5 +96,27 @@ button:hover {
     background-color:  #62a1d5;
 }
 
+/* Bearbeiten Button */
+#bearbeitenButton {
+    display: none; /* Button ist standardmäßig ausgeblendet */
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+#bearbeitenButton:hover {
+    background-color: #45a049; /* Dunkleres Grün beim Hover */
+}
+
+/* Wenn der Button sichtbar ist (z.B. beim Bearbeiten einer Aufgabe) */
+#bearbeitenButton.visible {
+    display: block;
+}
+
 
    
