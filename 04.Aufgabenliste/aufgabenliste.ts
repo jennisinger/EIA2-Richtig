@@ -10,7 +10,6 @@ interface Aufgabe {
 
 // Array, das alle Aufgaben speichert
 let aufgabenListe: Aufgabe[] = [];
-let bearbeiteteAufgabeId: number | null = null;  // Variable zur Speicherung der bearbeiteten Aufgaben-ID
 
 // Funktion, um die Aufgaben aus dem localStorage zu laden
 function ladeAufgabenAusStorage(): void {
@@ -25,35 +24,20 @@ function speichereAufgabenInStorage(): void {
     localStorage.setItem('aufgabenListe', JSON.stringify(aufgabenListe)); // Aufgaben im localStorage speichern
 }
 
-// Funktion, um eine Aufgabe zu speichern (Hinzufügen oder Bearbeiten)
-function speichereAufgabe(titel: string, datum: string, uhrzeit: string, bearbeiter: string, kommentar: string): void {
-    if (bearbeiteteAufgabeId !== null) {
-        // Wenn eine Aufgabe bearbeitet wird, finden wir die Aufgabe anhand der ID und aktualisieren sie
-        const aufgabe = aufgabenListe.find((aufgabe) => aufgabe.id === bearbeiteteAufgabeId);
-        if (aufgabe) {
-            aufgabe.titel = titel;
-            aufgabe.datum = datum;
-            aufgabe.uhrzeit = uhrzeit;
-            aufgabe.bearbeiter = bearbeiter;
-            aufgabe.kommentar = kommentar;
-        }
-        bearbeiteteAufgabeId = null;  // Rücksetzen der bearbeitetenAufgabeId nach dem Bearbeiten
-    } else {
-        // Wenn keine Aufgabe bearbeitet wird, erstellen wir eine neue Aufgabe
-        const neueAufgabe: Aufgabe = {
-            id: Date.now(), // Verwenden der aktuellen Zeit als eindeutige ID
-            titel,
-            datum,
-            uhrzeit,
-            bearbeiter,
-            kommentar,
-            status: "nicht begonnen" // Standardwert für den Status
-        };
-        aufgabenListe.push(neueAufgabe); // Neue Aufgabe zur Liste hinzufügen
-    }
-
-    speichereAufgabenInStorage();  // Aufgaben im localStorage speichern
-    ladeAufgaben();  // Aufgaben neu laden
+// Funktion, um eine neue Aufgabe hinzuzufügen
+function hinzufuegenAufgabe(titel: string, datum: string, uhrzeit: string, bearbeiter: string, kommentar: string): void {
+    const neueAufgabe: Aufgabe = {
+        id: Date.now(), // Verwenden der aktuellen Zeit als eindeutige ID
+        titel,
+        datum,
+        uhrzeit,
+        bearbeiter,
+        kommentar,
+        status: "nicht begonnen" // Standardwert für den Status
+    };
+    aufgabenListe.push(neueAufgabe); // Neue Aufgabe zur Liste hinzufügen
+    speichereAufgabenInStorage(); // Aufgaben im localStorage speichern
+    ladeAufgaben(); // Alle Aufgaben neu laden und anzeigen
 }
 
 // Funktion, um alle Aufgaben anzuzeigen
@@ -99,17 +83,14 @@ function ladeAufgaben(): void {
 // Funktion, um eine Aufgabe zu löschen
 function loescheAufgabe(id: number): void {
     aufgabenListe = aufgabenListe.filter((aufgabe) => aufgabe.id !== id); // Aufgabe entfernen
-    speichereAufgabenInStorage();  // Aufgaben im localStorage speichern
-    ladeAufgaben();  // Aufgaben neu laden
+    speichereAufgabenInStorage(); // Aufgaben im localStorage speichern
+    ladeAufgaben(); // Aufgaben neu laden
 }
 
 // Funktion, um eine Aufgabe zu bearbeiten
 function bearbeiteAufgabe(id: number): void {
     const aufgabe = aufgabenListe.find((aufgabe) => aufgabe.id === id);
     if (aufgabe) {
-        // Setze die ID der Aufgabe, die bearbeitet wird
-        bearbeiteteAufgabeId = id;
-
         // Fülle das Formular mit den bestehenden Werten der Aufgabe
         (document.getElementById("titel") as HTMLInputElement).value = aufgabe.titel;
         (document.getElementById("datum") as HTMLInputElement).value = aufgabe.datum;
@@ -117,9 +98,22 @@ function bearbeiteAufgabe(id: number): void {
         (document.getElementById("bearbeiter") as HTMLInputElement).value = aufgabe.bearbeiter;
         (document.getElementById("kommentar") as HTMLTextAreaElement).value = aufgabe.kommentar;
 
-        // Ändere den Button-Text und die Funktion zum Speichern
-        const hinzufuegenButton = document.getElementById("hinzufuegenButton") as HTMLButtonElement;
-        hinzufuegenButton.textContent = "Speichern";  // Buttontext ändern auf "Speichern"
+        // Speichere die ID der Aufgabe, die bearbeitet werden soll
+        (document.getElementById("hinzufuegenButton") as HTMLButtonElement).textContent = "Speichern";
+        (document.getElementById("hinzufuegenButton") as HTMLButtonElement).onclick = () => {
+            // Ändere die bestehende Aufgabe mit den neuen Werten
+            aufgabe.titel = (document.getElementById("titel") as HTMLInputElement).value;
+            aufgabe.datum = (document.getElementById("datum") as HTMLInputElement).value;
+            aufgabe.uhrzeit = (document.getElementById("uhrzeit") as HTMLInputElement).value;
+            aufgabe.bearbeiter = (document.getElementById("bearbeiter") as HTMLInputElement).value;
+            aufgabe.kommentar = (document.getElementById("kommentar") as HTMLTextAreaElement).value;
+
+            speichereAufgabenInStorage(); // Aufgaben im localStorage speichern
+            ladeAufgaben(); // Alle Aufgaben neu laden und anzeigen
+
+            // Zurücksetzen des Buttons nach dem Speichern
+            (document.getElementById("hinzufuegenButton") as HTMLButtonElement).textContent = "Aufgabe hinzufügen";
+        };
     }
 }
 
@@ -132,17 +126,10 @@ formular.addEventListener("submit", (event) => {
     const uhrzeit = (document.getElementById("uhrzeit") as HTMLInputElement).value;
     const bearbeiter = (document.getElementById("bearbeiter") as HTMLInputElement).value;
     const kommentar = (document.getElementById("kommentar") as HTMLTextAreaElement).value;
-
-    speichereAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar);  // Aufruf der richtigen Funktion
-
-    formular.reset();  // Formular zurücksetzen, aber nur bei einer neuen Aufgabe
+    hinzufuegenAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar);
+    formular.reset(); // Formular zurücksetzen
 });
 
 // Initiales Laden der Aufgaben
-ladeAufgabenAusStorage();  // Aufgaben aus dem localStorage laden
-ladeAufgaben();  // Aufgaben anzeigen
-
-
-
-
-
+ladeAufgabenAusStorage(); // Aufgaben aus dem localStorage laden
+ladeAufgaben(); // Aufgaben anzeigen
