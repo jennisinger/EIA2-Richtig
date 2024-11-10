@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haushaltsaufgaben</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Haushaltsaufgaben</h1>
+
+        <!-- Formular zum Hinzufügen einer neuen Aufgabe -->
+        <form id="aufgabenForm">
+            <input type="text" id="titel" placeholder="Titel der Aufgabe" required>
+            <input type="date" id="datum" required>
+            <input type="time" id="uhrzeit" required>
+            <input type="text" id="bearbeiter" placeholder="Bearbeiter" required>
+            <textarea id="kommentar" placeholder="Kommentar" required></textarea>
+            <button type="submit" id="hinzufuegenButton">Aufgabe hinzufügen</button>
+        </form>
+
+        <!-- Anzeige der Aufgaben -->
+        <div id="aufgabenListe"></div>
+    </div>
+
+    <script src="aufgabenliste.js"></script>
+</body>
+</html>
