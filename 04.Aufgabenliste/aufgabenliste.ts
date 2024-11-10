@@ -25,20 +25,35 @@ function speichereAufgabenInStorage(): void {
     localStorage.setItem('aufgabenListe', JSON.stringify(aufgabenListe)); // Aufgaben im localStorage speichern
 }
 
-// Funktion, um eine neue Aufgabe hinzuzufügen
-function hinzufuegenAufgabe(titel: string, datum: string, uhrzeit: string, bearbeiter: string, kommentar: string): void {
-    const neueAufgabe: Aufgabe = {
-        id: Date.now(), // Verwenden der aktuellen Zeit als eindeutige ID
-        titel,
-        datum,
-        uhrzeit,
-        bearbeiter,
-        kommentar,
-        status: "nicht begonnen" // Standardwert für den Status
-    };
-    aufgabenListe.push(neueAufgabe); // Neue Aufgabe zur Liste hinzufügen
-    speichereAufgabenInStorage(); // Aufgaben im localStorage speichern
-    ladeAufgaben(); // Alle Aufgaben neu laden und anzeigen
+// Funktion, um eine Aufgabe zu speichern (Hinzufügen oder Bearbeiten)
+function speichereAufgabe(titel: string, datum: string, uhrzeit: string, bearbeiter: string, kommentar: string): void {
+    if (bearbeiteteAufgabeId !== null) {
+        // Wenn eine Aufgabe bearbeitet wird, finden wir die Aufgabe anhand der ID und aktualisieren sie
+        const aufgabe = aufgabenListe.find((aufgabe) => aufgabe.id === bearbeiteteAufgabeId);
+        if (aufgabe) {
+            aufgabe.titel = titel;
+            aufgabe.datum = datum;
+            aufgabe.uhrzeit = uhrzeit;
+            aufgabe.bearbeiter = bearbeiter;
+            aufgabe.kommentar = kommentar;
+        }
+        bearbeiteteAufgabeId = null;  // Rücksetzen der bearbeitetenAufgabeId nach dem Bearbeiten
+    } else {
+        // Wenn keine Aufgabe bearbeitet wird, erstellen wir eine neue Aufgabe
+        const neueAufgabe: Aufgabe = {
+            id: Date.now(), // Verwenden der aktuellen Zeit als eindeutige ID
+            titel,
+            datum,
+            uhrzeit,
+            bearbeiter,
+            kommentar,
+            status: "nicht begonnen" // Standardwert für den Status
+        };
+        aufgabenListe.push(neueAufgabe); // Neue Aufgabe zur Liste hinzufügen
+    }
+
+    speichereAufgabenInStorage();  // Aufgaben im localStorage speichern
+    ladeAufgaben();  // Aufgaben neu laden
 }
 
 // Funktion, um alle Aufgaben anzuzeigen
@@ -84,8 +99,8 @@ function ladeAufgaben(): void {
 // Funktion, um eine Aufgabe zu löschen
 function loescheAufgabe(id: number): void {
     aufgabenListe = aufgabenListe.filter((aufgabe) => aufgabe.id !== id); // Aufgabe entfernen
-    speichereAufgabenInStorage(); // Aufgaben im localStorage speichern
-    ladeAufgaben(); // Aufgaben neu laden
+    speichereAufgabenInStorage();  // Aufgaben im localStorage speichern
+    ladeAufgaben();  // Aufgaben neu laden
 }
 
 // Funktion, um eine Aufgabe zu bearbeiten
@@ -105,29 +120,6 @@ function bearbeiteAufgabe(id: number): void {
         // Ändere den Button-Text und die Funktion zum Speichern
         const hinzufuegenButton = document.getElementById("hinzufuegenButton") as HTMLButtonElement;
         hinzufuegenButton.textContent = "Speichern";  // Buttontext ändern auf "Speichern"
-        
-        hinzufuegenButton.onclick = () => {
-            if (bearbeiteteAufgabeId !== null) {
-                const bearbeiteteAufgabe = aufgabenListe.find((aufgabe) => aufgabe.id === bearbeiteteAufgabeId);
-                if (bearbeiteteAufgabe) {
-                    // Aktualisiere die bearbeitete Aufgabe mit den neuen Werten
-                    bearbeiteteAufgabe.titel = (document.getElementById("titel") as HTMLInputElement).value;
-                    bearbeiteteAufgabe.datum = (document.getElementById("datum") as HTMLInputElement).value;
-                    bearbeiteteAufgabe.uhrzeit = (document.getElementById("uhrzeit") as HTMLInputElement).value;
-                    bearbeiteteAufgabe.bearbeiter = (document.getElementById("bearbeiter") as HTMLInputElement).value;
-                    bearbeiteteAufgabe.kommentar = (document.getElementById("kommentar") as HTMLTextAreaElement).value;
-
-                    // Speichere die Änderungen im LocalStorage
-                    speichereAufgabenInStorage();
-                    ladeAufgaben();  // Alle Aufgaben neu laden und anzeigen
-
-                    // Button zurücksetzen
-                    hinzufuegenButton.textContent = "Aufgabe hinzufügen";  // Zurück auf den ursprünglichen Text
-                    bearbeiteteAufgabeId = null;  // Aufgabenedition abschließen
-                    formular.reset();  // Formular zurücksetzen
-                }
-            }
-        };
     }
 }
 
@@ -141,17 +133,16 @@ formular.addEventListener("submit", (event) => {
     const bearbeiter = (document.getElementById("bearbeiter") as HTMLInputElement).value;
     const kommentar = (document.getElementById("kommentar") as HTMLTextAreaElement).value;
 
-    // Wenn eine Aufgabe bearbeitet wird, aktualisiere diese
-    if (bearbeiteteAufgabeId !== null) {
-        // Speichern der bearbeiteten Aufgabe
-        hinzufuegenAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar);
-    } else {
-        hinzufuegenAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar);
-    }
+    speichereAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar);  // Aufruf der richtigen Funktion
 
-    formular.reset(); // Formular zurücksetzen
+    formular.reset();  // Formular zurücksetzen, aber nur bei einer neuen Aufgabe
 });
 
 // Initiales Laden der Aufgaben
-ladeAufgabenAusStorage(); // Aufgaben aus dem localStorage laden
-ladeAufgaben(); // Aufgaben anzeigen
+ladeAufgabenAusStorage();  // Aufgaben aus dem localStorage laden
+ladeAufgaben();  // Aufgaben anzeigen
+
+
+
+
+
