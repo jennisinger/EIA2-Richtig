@@ -1,0 +1,20 @@
+[
+    {
+    "id": 5,
+    "titel": "Müll",
+    "datum": "28.11.2024",
+    "uhrzeit": "14:00",
+    "bearbeiter": "Lara",
+    "kommentar": "Bitte machen",
+    "status": "nicht begonnen"
+},
+{
+    "id": 2,
+    "titel": "Küche putzen",
+    "datum": "29.11.2024",
+    "uhrzeit": "18:00",
+    "bearbeiter": "Lamia",
+    "kommentar": "Nicht vergessen",
+    "status": "nicht begonnen"
+}
+]
