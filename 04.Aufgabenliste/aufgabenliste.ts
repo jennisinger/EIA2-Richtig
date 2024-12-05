@@ -84,28 +84,28 @@ function ladeAufgaben(): void {
 function loescheAufgabe(id: number): void {
     aufgabenListe = aufgabenListe.filter((aufgabe) => aufgabe.id !== id); // Aufgabe aus der Liste entfernen
     speichereAufgabenInStorage();
-    ladeAufgaben(); // Aufgaben neu laden
+    ladeAufgaben(); 
 }
 
-// Aufgabe bearbeiten
+
 function bearbeiteAufgabe(id: number): void {
-    aktuellBearbeiteteAufgabeId = id; // ID der bearbeiteten Aufgabe speichern
+    aktuellBearbeiteteAufgabeId = id; 
     const aufgabe = aufgabenListe.find((aufgabe) => aufgabe.id === id);
     if (aufgabe) {
-        // Formular mit den bestehenden Daten der Aufgabe ausfüllen
+        
         (document.getElementById("titel") as HTMLInputElement).value = aufgabe.titel;
         (document.getElementById("datum") as HTMLInputElement).value = aufgabe.datum;
         (document.getElementById("uhrzeit") as HTMLInputElement).value = aufgabe.uhrzeit;
         (document.getElementById("bearbeiter") as HTMLInputElement).value = aufgabe.bearbeiter;
         (document.getElementById("kommentar") as HTMLTextAreaElement).value = aufgabe.kommentar;
 
-        // Button-Text ändern und zur Speichern-Funktion umschalten
+        
         const hinzufuegenButton = document.getElementById("hinzufuegenButton") as HTMLButtonElement;
-        hinzufuegenButton.textContent = "Speichern"; // Button zum Speichern umbenennen
+        hinzufuegenButton.textContent = "Speichern"; 
     }
 }
 
-// Event-Listener für das Formular
+
 const formular = document.getElementById("aufgabenForm") as HTMLFormElement;
 formular.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -116,9 +116,9 @@ formular.addEventListener("submit", (event) => {
     const kommentar = (document.getElementById("kommentar") as HTMLTextAreaElement).value;
 
     if (aktuellBearbeiteteAufgabeId === null) {
-        hinzufuegenAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar); // Neue Aufgabe hinzufügen
+        hinzufuegenAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar); 
     } else {
-        // Bestehende Aufgabe mit der neuen ID und Daten aktualisieren
+        
         const aufgabeIndex = aufgabenListe.findIndex((aufgabe) => aufgabe.id === aktuellBearbeiteteAufgabeId);
         if (aufgabeIndex !== -1) {
             aufgabenListe[aufgabeIndex] = {
@@ -128,21 +128,36 @@ formular.addEventListener("submit", (event) => {
                 uhrzeit,
                 bearbeiter,
                 kommentar,
-                status: "nicht begonnen", // Standardwert für den Status
+                status: "nicht begonnen", 
             };
-            speichereAufgabenInStorage(); // Aufgaben im localStorage speichern
-            ladeAufgaben(); // Aufgaben neu laden
+            speichereAufgabenInStorage(); 
+            ladeAufgaben(); 
         }
     }
 
-    // Formular zurücksetzen und Button wieder auf "Aufgabe hinzufügen" setzen
+   
     formular.reset();
     const hinzufuegenButton = document.getElementById("hinzufuegenButton") as HTMLButtonElement;
     hinzufuegenButton.textContent = "Aufgabe hinzufügen";
-    aktuellBearbeiteteAufgabeId = null; // Bearbeitete Aufgabe zurücksetzen
+    aktuellBearbeiteteAufgabeId = null; 
 });
 
-// Initiales Laden der Aufgaben
+async function communicate(_url: RequestInfo): Promise<void> {
+    
+        const response: Response = await fetch (_url);
+        if (response.ok) {
+            const serverTasks: Aufgabe[] = await response.json();
+            console.log (response);
+        }
+    
+    //let response: Response = await fetch(_url);
+    
+    console.log("Response", response);
+}
+
+let link= "https://jennisinger.github.io/EIA2-Richtig/04.Aufgabenliste/tasks.json";
+communicate (link);
+
 ladeAufgabenAusStorage();
 ladeAufgaben();
 

@@ -1,97 +1,130 @@
-// Array, das alle Aufgaben speichert
-var aufgabenListe = [];
-// Funktion, um die Aufgaben aus dem localStorage zu laden
+"use strict";
+let aufgabenListe = [];
+let aktuellBearbeiteteAufgabeId = null; // Aktuell bearbeitete Aufgabe
+// Aufgaben aus dem localStorage laden
 function ladeAufgabenAusStorage() {
-    var gespeicherteAufgaben = localStorage.getItem('aufgabenListe');
+    const gespeicherteAufgaben = localStorage.getItem('aufgabenListe');
     if (gespeicherteAufgaben) {
-        aufgabenListe = JSON.parse(gespeicherteAufgaben); // Aufgaben aus dem localStorage laden
+        aufgabenListe = JSON.parse(gespeicherteAufgaben);
     }
 }
-// Funktion, um die Aufgaben im localStorage zu speichern
+// Aufgaben im localStorage speichern
 function speichereAufgabenInStorage() {
-    localStorage.setItem('aufgabenListe', JSON.stringify(aufgabenListe)); // Aufgaben im localStorage speichern
+    localStorage.setItem('aufgabenListe', JSON.stringify(aufgabenListe));
 }
-// Funktion, um eine neue Aufgabe hinzuzufügen
+// Neue Aufgabe hinzufügen
 function hinzufuegenAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar) {
-    var neueAufgabe = {
+    const neueAufgabe = {
         id: Date.now(), // Verwenden der aktuellen Zeit als eindeutige ID
-        titel: titel,
-        datum: datum,
-        uhrzeit: uhrzeit,
-        bearbeiter: bearbeiter,
-        kommentar: kommentar,
-        status: "nicht begonnen" // Standardwert für den Status
+        titel,
+        datum,
+        uhrzeit,
+        bearbeiter,
+        kommentar,
+        status: "nicht begonnen"
     };
-    aufgabenListe.push(neueAufgabe); // Neue Aufgabe zur Liste hinzufügen
-    speichereAufgabenInStorage(); // Aufgaben im localStorage speichern
-    ladeAufgaben(); // Alle Aufgaben neu laden und anzeigen
+    aufgabenListe.push(neueAufgabe);
+    speichereAufgabenInStorage();
+    ladeAufgaben(); // Aufgaben neu laden
 }
-// Funktion, um alle Aufgaben anzuzeigen
+// Aufgaben anzeigen
 function ladeAufgaben() {
-    var aufgabenListeElement = document.getElementById("aufgabenListe");
-    aufgabenListeElement.innerHTML = ''; // Liste leeren
-    aufgabenListe.forEach(function (aufgabe) {
-        var aufgabeElement = document.createElement("div");
+    const aufgabenListeElement = document.getElementById("aufgabenListe");
+    aufgabenListeElement.innerHTML = ''; // Alle Aufgaben zuerst löschen
+    aufgabenListe.forEach((aufgabe) => {
+        const aufgabeElement = document.createElement("div");
         aufgabeElement.classList.add("aufgabe");
-        aufgabeElement.innerHTML = "\n            <h3>".concat(aufgabe.titel, "</h3>\n            <p>Datum: ").concat(aufgabe.datum, ", Uhrzeit: ").concat(aufgabe.uhrzeit, "</p>\n            <p>Bearbeiter: ").concat(aufgabe.bearbeiter, "</p>\n            <p>Kommentar: ").concat(aufgabe.kommentar, "</p>\n            <button class=\"bearbeiten\" data-id=\"").concat(aufgabe.id, "\">Bearbeiten</button>\n            <button class=\"loeschen\" data-id=\"").concat(aufgabe.id, "\">L\u00F6schen</button>\n        ");
+        aufgabeElement.setAttribute("data-id", aufgabe.id.toString());
+        aufgabeElement.innerHTML = `
+            <h3>${aufgabe.titel}</h3>
+            <p>Datum: ${aufgabe.datum}, Uhrzeit: ${aufgabe.uhrzeit}</p>
+            <p>Bearbeiter: ${aufgabe.bearbeiter}</p>
+            <p>Kommentar: ${aufgabe.kommentar}</p>
+            <button class="bearbeiten" data-id="${aufgabe.id}">Bearbeiten</button>
+            <button class="loeschen" data-id="${aufgabe.id}">Löschen</button>
+        `;
         aufgabenListeElement.appendChild(aufgabeElement);
     });
     // Event-Listener für Bearbeiten und Löschen
-    document.querySelectorAll(".bearbeiten").forEach(function (button) {
-        button.addEventListener("click", function (event) {
-            var id = event.target.getAttribute("data-id");
-            bearbeiteAufgabe(Number(id));
+    document.querySelectorAll(".bearbeiten").forEach((button) => {
+        button.addEventListener("click", (event) => {
+            const id = event.target.getAttribute("data-id");
+            if (id) {
+                bearbeiteAufgabe(Number(id)); // Aufgabe bearbeiten
+            }
         });
     });
-    document.querySelectorAll(".loeschen").forEach(function (button) {
-        button.addEventListener("click", function (event) {
-            var id = event.target.getAttribute("data-id");
-            loescheAufgabe(Number(id));
+    document.querySelectorAll(".loeschen").forEach((button) => {
+        button.addEventListener("click", (event) => {
+            const id = event.target.getAttribute("data-id");
+            if (id) {
+                loescheAufgabe(Number(id)); // Aufgabe löschen
+            }
         });
     });
 }
-// Funktion, um eine Aufgabe zu löschen
+// Aufgabe löschen
 function loescheAufgabe(id) {
-    aufgabenListe = aufgabenListe.filter(function (aufgabe) { return aufgabe.id !== id; }); // Aufgabe entfernen
-    speichereAufgabenInStorage(); // Aufgaben im localStorage speichern
-    ladeAufgaben(); // Aufgaben neu laden
+    aufgabenListe = aufgabenListe.filter((aufgabe) => aufgabe.id !== id); // Aufgabe aus der Liste entfernen
+    speichereAufgabenInStorage();
+    ladeAufgaben();
 }
-// Funktion, um eine Aufgabe zu bearbeiten
 function bearbeiteAufgabe(id) {
-    var aufgabe = aufgabenListe.find(function (aufgabe) { return aufgabe.id === id; });
+    aktuellBearbeiteteAufgabeId = id;
+    const aufgabe = aufgabenListe.find((aufgabe) => aufgabe.id === id);
     if (aufgabe) {
         document.getElementById("titel").value = aufgabe.titel;
         document.getElementById("datum").value = aufgabe.datum;
         document.getElementById("uhrzeit").value = aufgabe.uhrzeit;
         document.getElementById("bearbeiter").value = aufgabe.bearbeiter;
         document.getElementById("kommentar").value = aufgabe.kommentar;
-        // Ändere den Button-Text und die Funktion
-        var hinzufuegenButton_1 = document.getElementById("hinzufuegenButton");
-        hinzufuegenButton_1.textContent = "Speichern";
-        hinzufuegenButton_1.onclick = function () {
-            aufgabe.titel = document.getElementById("titel").value;
-            aufgabe.datum = document.getElementById("datum").value;
-            aufgabe.uhrzeit = document.getElementById("uhrzeit").value;
-            aufgabe.bearbeiter = document.getElementById("bearbeiter").value;
-            aufgabe.kommentar = document.getElementById("kommentar").value;
-            speichereAufgabenInStorage(); // Aufgaben im localStorage speichern
-            ladeAufgaben(); // Aufgaben neu laden
-            hinzufuegenButton_1.textContent = "Aufgabe hinzufügen"; // Button zurücksetzen
-        };
+        const hinzufuegenButton = document.getElementById("hinzufuegenButton");
+        hinzufuegenButton.textContent = "Speichern";
     }
 }
-// Event-Listener für das Formular
-var formular = document.getElementById("aufgabenForm");
-formular.addEventListener("submit", function (event) {
+const formular = document.getElementById("aufgabenForm");
+formular.addEventListener("submit", (event) => {
     event.preventDefault();
-    var titel = document.getElementById("titel").value;
-    var datum = document.getElementById("datum").value;
-    var uhrzeit = document.getElementById("uhrzeit").value;
-    var bearbeiter = document.getElementById("bearbeiter").value;
-    var kommentar = document.getElementById("kommentar").value;
-    hinzufuegenAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar);
-    formular.reset(); // Formular zurücksetzen
+    const titel = document.getElementById("titel").value;
+    const datum = document.getElementById("datum").value;
+    const uhrzeit = document.getElementById("uhrzeit").value;
+    const bearbeiter = document.getElementById("bearbeiter").value;
+    const kommentar = document.getElementById("kommentar").value;
+    if (aktuellBearbeiteteAufgabeId === null) {
+        hinzufuegenAufgabe(titel, datum, uhrzeit, bearbeiter, kommentar);
+    }
+    else {
+        const aufgabeIndex = aufgabenListe.findIndex((aufgabe) => aufgabe.id === aktuellBearbeiteteAufgabeId);
+        if (aufgabeIndex !== -1) {
+            aufgabenListe[aufgabeIndex] = {
+                id: aktuellBearbeiteteAufgabeId,
+                titel,
+                datum,
+                uhrzeit,
+                bearbeiter,
+                kommentar,
+                status: "nicht begonnen",
+            };
+            speichereAufgabenInStorage();
+            ladeAufgaben();
+        }
+    }
+    formular.reset();
+    const hinzufuegenButton = document.getElementById("hinzufuegenButton");
+    hinzufuegenButton.textContent = "Aufgabe hinzufügen";
+    aktuellBearbeiteteAufgabeId = null;
 });
-// Initiales Laden der Aufgaben
-ladeAufgabenAusStorage(); // Aufgaben aus dem localStorage laden
-ladeAufgaben(); // Aufgaben anzeigen
+async function communicate(_url) {
+    const response = await fetch(_url);
+    if (response.ok) {
+        const serverTasks = await response.json();
+        console.log(response);
+    }
+    //let response: Response = await fetch(_url);
+    console.log("Response", response);
+}
+let link = "https://jennisinger.github.io/EIA2-Richtig/04.Aufgabenliste/tasks.json";
+communicate(link);
+ladeAufgabenAusStorage();
+ladeAufgaben();
+//# sourceMappingURL=aufgabenliste.js.map
