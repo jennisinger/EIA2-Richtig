@@ -29,17 +29,37 @@ function zeichneHintergrund(ctx: CanvasRenderingContext2D): void {
 
 
 // Funktion, um ein Vogelhaus zu zeichnen
+// Funktion, um ein Vogelhaus zu zeichnen
 function zeichneVogelhaus(ctx: CanvasRenderingContext2D): void {
+    // Vogelhaus (rechteckig)
     ctx.fillStyle = "brown";
-    ctx.fillRect(canvas.width / 2 - 50, canvas.height - 200, 100, 150);
+    ctx.fillRect(canvas.width / 2 - 50, canvas.height - 300, 100, 150);
+
+    // Dach des Vogelhauses (Dreieck)
     ctx.fillStyle = "brown";
     ctx.beginPath();
-    ctx.moveTo(canvas.width / 2 - 70, canvas.height - 200);
-    ctx.lineTo(canvas.width / 2 + 70, canvas.height - 200);
-    ctx.lineTo(canvas.width / 2, canvas.height - 300);
+    ctx.moveTo(canvas.width / 2 - 70, canvas.height - 300); // linke untere Ecke
+    ctx.lineTo(canvas.width / 2 + 70, canvas.height - 300); // rechte untere Ecke
+    ctx.lineTo(canvas.width / 2, canvas.height - 350); // Spitze des Daches
     ctx.closePath();
     ctx.fill();
+
+    // Kreis als Eingang (in der Mitte des Hauses)
+    ctx.fillStyle = "white"; // Der Eingang ist weiß
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height - 225, 20, 0, Math.PI * 2); // Kreis in der Mitte des Hauses
+    ctx.fill();
+    ctx.closePath();
+
+    // Standfuß des Vogelhauses (rechteckig)
+    ctx.fillStyle = "brown";
+    ctx.fillRect(canvas.width / 2 - 10, canvas.height - 100, 20, 100); // Standfuß des Vogelhauses
+
+    // Sockel des Standfußes (unterhalb des Vogelhauses)
+    ctx.fillStyle = "brown";
+    ctx.fillRect(canvas.width / 2 - 30, canvas.height - 100, 60, 10); // Sockel
 }
+
 
 // Funktion, um Vögel zu zeichnen
 function zeichneAlleVoegel(ctx: CanvasRenderingContext2D): void {
@@ -150,24 +170,26 @@ function zeichneBerge(ctx: CanvasRenderingContext2D): void {
         // Zufällige Gipfelhöhe und Positionen für jeden Berg
         const randomHeight = Math.random() * 100 + 100; // Gipfelhöhe zufällig
         const randomOffset = Math.random() * 50 - 25; // Kleine zufällige Verschiebung für die Gipfel
+        const peakX = startX + 200 + randomOffset; // X-Position des Gipfels
+        const peakY = canvas.height - randomHeight; // Y-Position des Gipfels
+
         ctx.moveTo(startX, canvas.height); // Startpunkt auf der unteren Linie
 
         // Erstelle den linken Gipfel
-        ctx.lineTo(startX + 200 + randomOffset, canvas.height - randomHeight);
+        ctx.lineTo(peakX, peakY);
         
         // Erstelle den rechten Gipfel
-        ctx.lineTo(startX + 400 + randomOffset, canvas.height - randomHeight);
-        
-        // Setze die Linie zum rechten Ende des Berges
-        ctx.lineTo(startX + 600, canvas.height); 
+        ctx.lineTo(startX + 400 + randomOffset, canvas.height); 
 
         ctx.closePath();
         ctx.fill();
+        
 
         // Verschiebe die Startposition für den nächsten Berg (Überlappung)
         startX += 400 + randomOffset;
     }
 }
+
 function zeichneSchneemann(ctx: CanvasRenderingContext2D): void {
     // Position des Schneemanns so setzen, dass er am unteren Rand erscheint
     const x = canvas.width * 0.2; // X-Position bleibt gleich

@@ -24,16 +24,31 @@ function zeichneHintergrund(ctx) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 // Funktion, um ein Vogelhaus zu zeichnen
+// Funktion, um ein Vogelhaus zu zeichnen
 function zeichneVogelhaus(ctx) {
+    // Vogelhaus (rechteckig)
     ctx.fillStyle = "brown";
-    ctx.fillRect(canvas.width / 2 - 50, canvas.height - 200, 100, 150);
+    ctx.fillRect(canvas.width / 2 - 50, canvas.height - 300, 100, 150);
+    // Dach des Vogelhauses (Dreieck)
     ctx.fillStyle = "brown";
     ctx.beginPath();
-    ctx.moveTo(canvas.width / 2 - 70, canvas.height - 200);
-    ctx.lineTo(canvas.width / 2 + 70, canvas.height - 200);
-    ctx.lineTo(canvas.width / 2, canvas.height - 300);
+    ctx.moveTo(canvas.width / 2 - 70, canvas.height - 300); // linke untere Ecke
+    ctx.lineTo(canvas.width / 2 + 70, canvas.height - 300); // rechte untere Ecke
+    ctx.lineTo(canvas.width / 2, canvas.height - 350); // Spitze des Daches
     ctx.closePath();
     ctx.fill();
+    // Kreis als Eingang (in der Mitte des Hauses)
+    ctx.fillStyle = "white"; // Der Eingang ist weiß
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height - 225, 20, 0, Math.PI * 2); // Kreis in der Mitte des Hauses
+    ctx.fill();
+    ctx.closePath();
+    // Standfuß des Vogelhauses (rechteckig)
+    ctx.fillStyle = "brown";
+    ctx.fillRect(canvas.width / 2 - 10, canvas.height - 100, 20, 100); // Standfuß des Vogelhauses
+    // Sockel des Standfußes (unterhalb des Vogelhauses)
+    ctx.fillStyle = "brown";
+    ctx.fillRect(canvas.width / 2 - 30, canvas.height - 100, 60, 10); // Sockel
 }
 // Funktion, um Vögel zu zeichnen
 function zeichneAlleVoegel(ctx) {
@@ -118,18 +133,26 @@ function zeichneSchneekristall(ctx, x, y, size, rotation) {
 }
 // Funktion, um die Berge zu zeichnen
 function zeichneBerge(ctx) {
-    const bergFarben = ["#4B5320", "#6B8E23", "#8B4513"]; // verschiedene Farbtöne für die Berge
-    // Berge im Hintergrund zeichnen
-    for (let i = 0; i < 3; i++) {
+    const bergFarben = ["#4B5320", "#6B8E23", "#8B4513"]; // Verschiedene Farbtöne für die Berge
+    let startX = -200; // Startposition für den ersten Berg
+    // Wir erstellen 5 Berge nebeneinander
+    for (let i = 0; i < 5; i++) {
         ctx.fillStyle = bergFarben[i % bergFarben.length]; // Farbwechsel für verschiedene Berge
         ctx.beginPath();
-        // Wir zeichnen Berge mit spitzen Gipfeln
-        ctx.moveTo(-100, canvas.height - (i * 100)); // Startpunkt der Linie
-        ctx.lineTo(canvas.width * 0.4 + Math.random() * 200, canvas.height - (i * 100) - 150 + Math.random() * 50); // Linker Gipfel
-        ctx.lineTo(canvas.width * 0.7 + Math.random() * 200, canvas.height - (i * 100) - 200 + Math.random() * 100); // Rechter Gipfel (spitz)
-        ctx.lineTo(canvas.width + 100, canvas.height - (i * 100)); // Endpunkt der Linie
+        // Zufällige Gipfelhöhe und Positionen für jeden Berg
+        const randomHeight = Math.random() * 100 + 100; // Gipfelhöhe zufällig
+        const randomOffset = Math.random() * 50 - 25; // Kleine zufällige Verschiebung für die Gipfel
+        const peakX = startX + 200 + randomOffset; // X-Position des Gipfels
+        const peakY = canvas.height - randomHeight; // Y-Position des Gipfels
+        ctx.moveTo(startX, canvas.height); // Startpunkt auf der unteren Linie
+        // Erstelle den linken Gipfel
+        ctx.lineTo(peakX, peakY);
+        // Erstelle den rechten Gipfel
+        ctx.lineTo(startX + 400 + randomOffset, canvas.height);
         ctx.closePath();
         ctx.fill();
+        // Verschiebe die Startposition für den nächsten Berg (Überlappung)
+        startX += 400 + randomOffset;
     }
 }
 function zeichneSchneemann(ctx) {
