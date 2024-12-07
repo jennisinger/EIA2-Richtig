@@ -1,0 +1,16 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f8ff; /* optionaler Hintergrund für den Rest */
+}
+
+canvas {
+    width: 100%;
+    height: auto;
+    max-height: 100%; /* Wichtig für kleinere Bildschirme */
+    display: block;
+}

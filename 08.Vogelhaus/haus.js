@@ -2,18 +2,40 @@
 // Canvas setup
 const canvas = document.getElementById("winterScene");
 const ctx = canvas.getContext("2d");
-if (ctx) {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    zeichneHintergrund(ctx);
-    zeichneBerge(ctx);
-    zeichneAlleVoegel(ctx);
-    zeichneSchneeflocken(ctx);
-    zeichneSchneemann(ctx);
-    zeichneVogelhaus(ctx);
+// Funktion, um die Größe des Canvas dynamisch anzupassen
+function resizeCanvas() {
+    const scale = window.devicePixelRatio || 1; // Hohe Auflösung für Retina-Displays
+    canvas.width = window.innerWidth * scale;
+    canvas.height = window.innerHeight * scale;
+    ctx?.scale(scale, scale); // Kontext skalieren für klare Darstellung
 }
-else {
-    console.error("CanvasRenderingContext2D konnte nicht initialisiert werden.");
+// Event-Listener für Größenänderung des Fensters
+window.addEventListener("resize", () => {
+    resizeCanvas();
+    zeichneSzene();
+});
+// Initiale Anpassung und Zeichnung
+resizeCanvas();
+zeichneSzene();
+function zeichneSzene() {
+    if (!ctx)
+        return;
+    if (ctx) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        zeichneHintergrund(ctx);
+        zeichneSonne(ctx);
+        zeichneWolken(ctx);
+        zeichneBerge(ctx);
+        zeichneBaum(ctx);
+        zeichneAlleVoegel(ctx);
+        zeichneSchneeflocken(ctx);
+        zeichneSchneemann(ctx);
+        zeichneVogelhaus(ctx);
+    }
+    else {
+        console.error("CanvasRenderingContext2D konnte nicht initialisiert werden.");
+    }
 }
 // Funktion, um den Hintergrund zu zeichnen
 function zeichneHintergrund(ctx) {
@@ -23,32 +45,43 @@ function zeichneHintergrund(ctx) {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
-// Funktion, um ein Vogelhaus zu zeichnen
-// Funktion, um ein Vogelhaus zu zeichnen
 function zeichneVogelhaus(ctx) {
     // Vogelhaus (rechteckig)
+    const hausBreite = 100;
+    const hausHöhe = 150;
+    const hausX = canvas.width / 2 - hausBreite / 2;
+    const hausY = canvas.height - hausHöhe - 15;
+    // Hauskörper
     ctx.fillStyle = "brown";
-    ctx.fillRect(canvas.width / 2 - 50, canvas.height - 300, 100, 150);
+    ctx.fillRect(hausX, hausY, hausBreite, hausHöhe);
     // Dach des Vogelhauses (Dreieck)
     ctx.fillStyle = "brown";
     ctx.beginPath();
-    ctx.moveTo(canvas.width / 2 - 70, canvas.height - 300); // linke untere Ecke
-    ctx.lineTo(canvas.width / 2 + 70, canvas.height - 300); // rechte untere Ecke
-    ctx.lineTo(canvas.width / 2, canvas.height - 350); // Spitze des Daches
+    ctx.moveTo(hausX - 20, hausY); // linke untere Ecke
+    ctx.lineTo(hausX + hausBreite + 20, hausY); // rechte untere Ecke
+    ctx.lineTo(hausX + hausBreite / 2, hausY - 50); // Spitze des Daches
     ctx.closePath();
     ctx.fill();
     // Kreis als Eingang (in der Mitte des Hauses)
-    ctx.fillStyle = "white"; // Der Eingang ist weiß
+    ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height - 225, 20, 0, Math.PI * 2); // Kreis in der Mitte des Hauses
+    ctx.arc(hausX + hausBreite / 2, hausY + hausHöhe / 2, 20, 0, Math.PI * 2); // Kreis in der Mitte des Hauses
     ctx.fill();
     ctx.closePath();
     // Standfuß des Vogelhauses (rechteckig)
+    const standfußBreite = 20;
+    const standfußHöhe = 100;
+    const standfußX = canvas.width / 2 - standfußBreite / 2;
+    const standfußY = hausY + hausHöhe;
     ctx.fillStyle = "brown";
-    ctx.fillRect(canvas.width / 2 - 10, canvas.height - 100, 20, 100); // Standfuß des Vogelhauses
+    ctx.fillRect(standfußX, standfußY, standfußBreite, standfußHöhe); // Standfuß des Vogelhauses
     // Sockel des Standfußes (unterhalb des Vogelhauses)
+    const sockelBreite = 60;
+    const sockelHöhe = 10;
+    const sockelX = canvas.width / 2 - sockelBreite / 2;
+    const sockelY = standfußY + standfußHöhe;
     ctx.fillStyle = "brown";
-    ctx.fillRect(canvas.width / 2 - 30, canvas.height - 100, 60, 10); // Sockel
+    ctx.fillRect(sockelX, sockelY, sockelBreite, sockelHöhe); // Sockel
 }
 // Funktion, um Vögel zu zeichnen
 function zeichneAlleVoegel(ctx) {
@@ -60,24 +93,29 @@ function zeichneAlleVoegel(ctx) {
 }
 // Einzelvogel zeichnen (Helferfunktion)
 function zeichneVoegel(ctx, x, y) {
+    // Zufällige Farbe für den Körper
+    const bodyandHeadColor = getRandomColor();
+    // Zufällige Farbe für die Flügel
+    const wingColor = getRandomColor();
+    // Zufällige Farbe für die Beine
+    const legColor = getRandomColor();
     // Körper (oval, waagerecht)
     ctx.beginPath();
     ctx.ellipse(x, y, 20, 10, 0, 0, Math.PI * 2); // radiusX=20, radiusY=10 (waagerecht)
-    ctx.fillStyle = "brown";
+    ctx.fillStyle = bodyandHeadColor;
     ctx.fill();
     ctx.closePath();
     // Kopf (Kreis)
     ctx.beginPath();
     ctx.arc(x + 15, y, 10, 0, Math.PI * 2); // Kopf leicht rechts des Körpers
-    ctx.fillStyle = "brown";
+    ctx.fillStyle = bodyandHeadColor;
     ctx.fill();
     ctx.closePath();
-    // Flügel (Dreieck, angepasst an den Körper)
     ctx.beginPath();
-    ctx.moveTo(x - 10, y - 5); // Obere Ecke des Dreiecks
-    ctx.lineTo(x - 25, y); // Linke Ecke des Dreiecks
-    ctx.lineTo(x - 10, y + 5); // Rechte Ecke des Dreiecks
-    ctx.fillStyle = "darkbrown";
+    ctx.moveTo(x, y - 5); // Obere Ecke des Flügels in der Mitte des Ovals
+    ctx.lineTo(x - 15, y); // Linke Ecke des Dreiecks
+    ctx.lineTo(x, y + 5); // Rechte Ecke des Dreiecks
+    ctx.fillStyle = wingColor;
     ctx.fill();
     ctx.closePath();
     // Beine (Striche, angepasst an den Körper)
@@ -86,10 +124,19 @@ function zeichneVoegel(ctx, x, y) {
     ctx.lineTo(x - 5, y + 20);
     ctx.moveTo(x + 10, y + 10); // Rechtes Bein
     ctx.lineTo(x + 15, y + 20);
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = legColor;
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.closePath();
+}
+// Funktion, um eine zufällige Farbe zu generieren
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }
 // Funktion, um Schneeflocken zu zeichnen
 function zeichneSchneeflocken(ctx) {
@@ -203,5 +250,71 @@ function zeichneSchneemann(ctx) {
         ctx.arc(x, y + i, 3, 0, Math.PI * 2); // Knopf
         ctx.fill();
     }
+}
+function zeichneWolken(ctx) {
+    // Wolkenpositionen
+    const wolkenPositionen = [
+        { x: 200, y: 150 },
+        { x: 400, y: 100 },
+        { x: 600, y: 180 }
+    ];
+    ctx.fillStyle = "white";
+    wolkenPositionen.forEach(pos => {
+        ctx.beginPath(); // Starte einen neuen Pfad für die gesamte Wolke
+        ctx.ellipse(pos.x, pos.y, 50, 30, 0, 0, Math.PI * 2); // Hauptwolke
+        ctx.ellipse(pos.x - 30, pos.y + 10, 40, 25, 0, 0, Math.PI * 2); // Linke Wolke
+        ctx.ellipse(pos.x + 30, pos.y + 10, 40, 25, 0, 0, Math.PI * 2); // Rechte Wolke
+        ctx.fill(); // Fülle die gesamte Wolke
+        ctx.closePath(); // Schließe den Pfad
+    });
+}
+function zeichneBaum(ctx) {
+    // Baumpositionen entlang der x-Achse
+    const baumPositionen = [
+        { x: 100 },
+        { x: 300 },
+        { x: 500 },
+        { x: 700 }
+    ];
+    baumPositionen.forEach(pos => {
+        const boden = canvas.height; // Unterkante des Canvas als Referenz
+        // Stamm
+        ctx.fillStyle = "brown";
+        ctx.fillRect(pos.x - 10, boden - 40, 20, 40); // Positionierung am Boden
+        // Baumkronen (Dreiecke)
+        ctx.fillStyle = "green";
+        // Unterstes Dreieck
+        ctx.beginPath();
+        ctx.moveTo(pos.x - 30, boden - 40); // Linke untere Ecke
+        ctx.lineTo(pos.x + 30, boden - 40); // Rechte untere Ecke
+        ctx.lineTo(pos.x, boden - 100); // Spitze
+        ctx.closePath();
+        ctx.fill();
+        // Mittleres Dreieck
+        ctx.beginPath();
+        ctx.moveTo(pos.x - 25, boden - 70); // Linke untere Ecke
+        ctx.lineTo(pos.x + 25, boden - 70); // Rechte untere Ecke
+        ctx.lineTo(pos.x, boden - 120); // Spitze
+        ctx.closePath();
+        ctx.fill();
+        // Oberstes Dreieck
+        ctx.beginPath();
+        ctx.moveTo(pos.x - 20, boden - 100); // Linke untere Ecke
+        ctx.lineTo(pos.x + 20, boden - 100); // Rechte untere Ecke
+        ctx.lineTo(pos.x, boden - 140); // Spitze
+        ctx.closePath();
+        ctx.fill();
+    });
+}
+function zeichneSonne(ctx) {
+    // Sonne (Kreis oben rechts)
+    const sonnenRadius = 50;
+    const sonnenX = canvas.width - 100;
+    const sonnenY = 100;
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.arc(sonnenX, sonnenY, sonnenRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
 }
 //# sourceMappingURL=haus.js.map
