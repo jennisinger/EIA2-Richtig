@@ -1,6 +1,6 @@
-// Canvas setup
-const canvas = document.getElementById("winterScene") as HTMLCanvasElement;
-const ctx = canvas.getContext("2d");
+
+const canvas1 = document.getElementById("winterScene") as HTMLCanvasElement;
+const ctx1 = canvas.getContext("2d");
 
 // Funktion, um die Größe des Canvas dynamisch anzupassen
 function resizeCanvas(): void {
@@ -20,7 +20,7 @@ window.addEventListener("resize", () => {
 resizeCanvas();
 zeichneSzene1();
 
-function zeichneSzene(): void {
+function zeichneSzene1(): void {
     if (!ctx) return;
 if (ctx) {
     canvas.width = window.innerWidth;

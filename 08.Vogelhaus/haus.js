@@ -3,7 +3,7 @@
 const canvas = document.getElementById("winterScene");
 const ctx = canvas.getContext("2d");
 // Funktion, um die Größe des Canvas dynamisch anzupassen
-function resizeCanvas() {
+function resizecanvas() {
     const scale = window.devicePixelRatio || 1; // Hohe Auflösung für Retina-Displays
     canvas.width = window.innerWidth * scale;
     canvas.height = window.innerHeight * scale;
@@ -12,40 +12,40 @@ function resizeCanvas() {
 // Event-Listener für Größenänderung des Fensters
 window.addEventListener("resize", () => {
     resizeCanvas();
-    zeichneSzene();
+    zeichneSzene1();
 });
 // Initiale Anpassung und Zeichnung
 resizeCanvas();
-zeichneSzene();
+zeichneSzene1();
 function zeichneSzene() {
     if (!ctx)
         return;
     if (ctx) {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        zeichneHintergrund(ctx);
-        zeichneSonne(ctx);
-        zeichneWolken(ctx);
-        zeichneBerge(ctx);
+        zeichnehintergrund(ctx);
+        zeichnesonne(ctx);
+        zeichnewolken(ctx);
+        zeichneberge(ctx);
         zeichneBaum(ctx);
-        zeichneAlleVoegel(ctx);
-        zeichneSchneeflocken(ctx);
-        zeichneSchneemann(ctx);
-        zeichneVogelhaus(ctx);
+        zeichnealleVoegel(ctx);
+        zeichneschneeflocken(ctx);
+        zeichneschneemann(ctx);
+        zeichnevogelhaus(ctx);
     }
     else {
         console.error("CanvasRenderingContext2D konnte nicht initialisiert werden.");
     }
 }
 // Funktion, um den Hintergrund zu zeichnen
-function zeichneHintergrund(ctx) {
+function zeichnehintergrund(ctx) {
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
     gradient.addColorStop(0, "skyblue");
     gradient.addColorStop(1, "white");
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
-function zeichneVogelhaus(ctx) {
+function zeichnevogelhaus(ctx) {
     // Vogelhaus (rechteckig)
     const hausBreite = 100;
     const hausHöhe = 150;
@@ -84,7 +84,7 @@ function zeichneVogelhaus(ctx) {
     ctx.fillRect(sockelX, sockelY, sockelBreite, sockelHöhe); // Sockel
 }
 // Funktion, um Vögel zu zeichnen
-function zeichneAlleVoegel(ctx) {
+function zeichnealleVoegel(ctx) {
     for (let i = 0; i < 20; i++) {
         const x = Math.random() * canvas.width;
         const y = Math.random() * canvas.height * 0.5 + canvas.height * 0.4; // Vögel im mittleren Bereich
@@ -92,7 +92,7 @@ function zeichneAlleVoegel(ctx) {
     }
 }
 // Einzelvogel zeichnen (Helferfunktion)
-function zeichneVoegel(ctx, x, y) {
+function zeichnevoegel(ctx, x, y) {
     // Zufällige Farbe für den Körper
     const bodyandHeadColor = getRandomColor();
     // Zufällige Farbe für die Flügel
@@ -130,7 +130,7 @@ function zeichneVoegel(ctx, x, y) {
     ctx.closePath();
 }
 // Funktion, um eine zufällige Farbe zu generieren
-function getRandomColor() {
+function getrandomColor() {
     const letters = '0123456789ABCDEF';
     let color = '#';
     for (let i = 0; i < 6; i++) {
@@ -139,7 +139,7 @@ function getRandomColor() {
     return color;
 }
 // Funktion, um Schneeflocken zu zeichnen
-function zeichneSchneeflocken(ctx) {
+function zeichneschneeflocken(ctx) {
     for (let i = 0; i < 100; i++) {
         const x = Math.random() * canvas.width;
         const y = Math.random() * canvas.height;
@@ -149,7 +149,7 @@ function zeichneSchneeflocken(ctx) {
     }
 }
 // Funktion, um einen einzelnen Schneekristall zu zeichnen
-function zeichneSchneekristall(ctx, x, y, size, rotation) {
+function zeichneschneekristall(ctx, x, y, size, rotation) {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rotation);
@@ -179,7 +179,7 @@ function zeichneSchneekristall(ctx, x, y, size, rotation) {
     ctx.restore();
 }
 // Funktion, um die Berge zu zeichnen
-function zeichneBerge(ctx) {
+function zeichneberge(ctx) {
     const bergFarben = ["#4B5320", "#6B8E23", "#8B4513"]; // Verschiedene Farbtöne für die Berge
     let startX = -200; // Startposition für den ersten Berg
     // Wir erstellen 5 Berge nebeneinander
@@ -202,7 +202,7 @@ function zeichneBerge(ctx) {
         startX += 400 + randomOffset;
     }
 }
-function zeichneSchneemann(ctx) {
+function zeichneschneemann(ctx) {
     // Position des Schneemanns so setzen, dass er am unteren Rand erscheint
     const x = canvas.width * 0.2; // X-Position bleibt gleich
     const y = canvas.height - 40; // Y-Position so setzen, dass der Schneemann am unteren Rand erscheint
@@ -251,7 +251,7 @@ function zeichneSchneemann(ctx) {
         ctx.fill();
     }
 }
-function zeichneWolken(ctx) {
+function zeichnewolken(ctx) {
     // Wolkenpositionen
     const wolkenPositionen = [
         { x: 200, y: 150 },
@@ -268,7 +268,7 @@ function zeichneWolken(ctx) {
         ctx.closePath(); // Schließe den Pfad
     });
 }
-function zeichneBaum(ctx) {
+function zeichnebaum(ctx) {
     // Baumpositionen entlang der x-Achse
     const baumPositionen = [
         { x: 100 },
@@ -306,7 +306,7 @@ function zeichneBaum(ctx) {
         ctx.fill();
     });
 }
-function zeichneSonne(ctx) {
+function zeichnesonne(ctx) {
     // Sonne (Kreis oben rechts)
     const sonnenRadius = 50;
     const sonnenX = canvas.width - 100;
