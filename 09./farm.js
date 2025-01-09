@@ -2,7 +2,7 @@
 // Canvas setup
 var Aufgabe91;
 (function (Aufgabe91) {
-    const canvas = document.getElementById("farmCanvas");
+    const canvas = document.getElementById("canvas");
     if (!canvas) {
         throw new Error("Canvas element not found!");
     }
