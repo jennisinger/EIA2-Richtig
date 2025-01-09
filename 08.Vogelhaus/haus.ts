@@ -1,5 +1,6 @@
 // Canvas setup
-const canvas = document.getElementById("winterScene") as HTMLCanvasElement;
+namespace Aufgabe8
+{const canvas = document.getElementById("winterScene") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d");
 
 // Funktion, um die Größe des Canvas dynamisch anzupassen
@@ -13,12 +14,12 @@ function resizeCanvas(): void {
 // Event-Listener für Größenänderung des Fensters
 window.addEventListener("resize", () => {
     resizeCanvas();
-    zeichneSzene1();
+    zeichneSzene();
 });
 
 // Initiale Anpassung und Zeichnung
 resizeCanvas();
-zeichneSzene1();
+zeichneSzene();
 
 function zeichneSzene(): void {
     if (!ctx) return;
@@ -368,4 +369,4 @@ function zeichneSonne(ctx: CanvasRenderingContext2D): void {
     ctx.arc(sonnenX, sonnenY, sonnenRadius, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
-}
+}}

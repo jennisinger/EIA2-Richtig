@@ -1,7 +1,6 @@
 "use strict";
-// Canvas setup
-var Aufgabe8;
-(function (Aufgabe8) {
+var Aufgabe9;
+(function (Aufgabe9) {
     const canvas = document.getElementById("winterScene");
     const ctx = canvas.getContext("2d");
     // Funktion, um die Größe des Canvas dynamisch anzupassen
@@ -14,12 +13,12 @@ var Aufgabe8;
     // Event-Listener für Größenänderung des Fensters
     window.addEventListener("resize", () => {
         resizeCanvas();
-        zeichneSzene();
+        zeichneSzene1();
     });
     // Initiale Anpassung und Zeichnung
     resizeCanvas();
-    zeichneSzene();
-    function zeichneSzene() {
+    zeichneSzene1();
+    function zeichneSzene1() {
         if (!ctx)
             return;
         if (ctx) {
@@ -319,5 +318,5 @@ var Aufgabe8;
         ctx.fill();
         ctx.closePath();
     }
-})(Aufgabe8 || (Aufgabe8 = {}));
-//# sourceMappingURL=haus.js.map
+})(Aufgabe9 || (Aufgabe9 = {}));
+//# sourceMappingURL=vogelhaus.js.map
