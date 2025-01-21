@@ -3,134 +3,74 @@ var Aufgabe9;
 (function (Aufgabe9) {
     const canvas = document.getElementById("winterScene");
     const ctx = canvas.getContext("2d");
-    // Funktion, um die Größe des Canvas dynamisch anzupassen
-    function resizeCanvas() {
-        const scale = window.devicePixelRatio || 1; // Hohe Auflösung für Retina-Displays
-        canvas.width = window.innerWidth * scale;
-        canvas.height = window.innerHeight * scale;
-        ctx?.scale(scale, scale); // Kontext skalieren für klare Darstellung
-    }
-    // Event-Listener für Größenänderung des Fensters
-    window.addEventListener("resize", () => {
-        resizeCanvas();
-        zeichneSzene1();
-    });
-    // Initiale Anpassung und Zeichnung
-    resizeCanvas();
-    zeichneSzene1();
-    function zeichneSzene1() {
-        if (!ctx)
-            return;
-        if (ctx) {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            zeichneHintergrund(ctx);
-            zeichneSonne(ctx);
-            zeichneWolken(ctx);
-            zeichneBerge(ctx);
-            zeichneBaum(ctx);
-            zeichneAlleVoegel(ctx);
-            zeichneSchneeflocken(ctx);
-            zeichneSchneemann(ctx);
-            zeichneVogelhaus(ctx);
+    let backgroundImage;
+    class Vogel {
+        x;
+        y;
+        vx;
+        vy;
+        type;
+        bodyAndHeadColor; //( hab ihr noch die Kopf und Körperfarbe reingemacht)
+        wingColor; //(habe dem Flügel Farbe gegeben)
+        legColor; // ( habe beine auch eine Farbe gegeben)
+        size; // Größe des Vogels (hab ihr noch rein gemacht das du die Vogel größe ändern kannst)
+        constructor(x, y, type) {
+            this.x = x;
+            this.y = y;
+            this.type = type;
+            this.vx = Math.random() * 2 + 1; // (Vögel Geschwindigkeit nach rechts)
+            this.vy = Math.sin(Date.now() / 500) * 5; // (Vertikale Bewegung)
+            this.size = Math.random() * 15 + 10; // (Größe der Vögel)
+            // (Farben für die Vögel)
+            this.bodyAndHeadColor = getRandomColor();
+            this.wingColor = getRandomColor();
+            this.legColor = getRandomColor();
         }
-        else {
-            console.error("CanvasRenderingContext2D konnte nicht initialisiert werden.");
+        move() {
+            this.x += this.vx;
+            this.vy = Math.sin(Date.now() / 500) * 5; //(hab ihr noch die Vertikale Bewegung reingemacht)
+            if (this.x > canvas.width)
+                this.x = -this.size; // Wiederholender Flug (hab dir die nur bissle abgeändert das es tut)
+            // (horizontale Bewegung für pickende Vögel hab die bedingung angepasst)
+            if (this.type === "pecking") {
+                // Pecking Bewegung (leichtes Hüpfen)
+                this.x += Math.random() * 0.5 - 0.25;
+            }
         }
-    }
-    // Funktion, um den Hintergrund zu zeichnen
-    function zeichneHintergrund(ctx) {
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, "skyblue");
-        gradient.addColorStop(1, "white");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    function zeichneVogelhaus(ctx) {
-        // Vogelhaus (rechteckig)
-        const hausBreite = 100;
-        const hausHöhe = 150;
-        const hausX = canvas.width / 2 - hausBreite / 2;
-        const hausY = canvas.height - hausHöhe - 15;
-        // Hauskörper
-        ctx.fillStyle = "brown";
-        ctx.fillRect(hausX, hausY, hausBreite, hausHöhe);
-        // Dach des Vogelhauses (Dreieck)
-        ctx.fillStyle = "brown";
-        ctx.beginPath();
-        ctx.moveTo(hausX - 20, hausY); // linke untere Ecke
-        ctx.lineTo(hausX + hausBreite + 20, hausY); // rechte untere Ecke
-        ctx.lineTo(hausX + hausBreite / 2, hausY - 50); // Spitze des Daches
-        ctx.closePath();
-        ctx.fill();
-        // Kreis als Eingang (in der Mitte des Hauses)
-        ctx.fillStyle = "black";
-        ctx.beginPath();
-        ctx.arc(hausX + hausBreite / 2, hausY + hausHöhe / 2, 20, 0, Math.PI * 2); // Kreis in der Mitte des Hauses
-        ctx.fill();
-        ctx.closePath();
-        // Standfuß des Vogelhauses (rechteckig)
-        const standfußBreite = 20;
-        const standfußHöhe = 100;
-        const standfußX = canvas.width / 2 - standfußBreite / 2;
-        const standfußY = hausY + hausHöhe;
-        ctx.fillStyle = "brown";
-        ctx.fillRect(standfußX, standfußY, standfußBreite, standfußHöhe); // Standfuß des Vogelhauses
-        // Sockel des Standfußes (unterhalb des Vogelhauses)
-        const sockelBreite = 60;
-        const sockelHöhe = 10;
-        const sockelX = canvas.width / 2 - sockelBreite / 2;
-        const sockelY = standfußY + standfußHöhe;
-        ctx.fillStyle = "brown";
-        ctx.fillRect(sockelX, sockelY, sockelBreite, sockelHöhe); // Sockel
-    }
-    // Funktion, um Vögel zu zeichnen
-    function zeichneAlleVoegel(ctx) {
-        for (let i = 0; i < 20; i++) {
-            const x = Math.random() * canvas.width;
-            const y = Math.random() * canvas.height * 0.5 + canvas.height * 0.4; // Vögel im mittleren Bereich
-            zeichneVoegel(ctx, x, y);
+        draw() {
+            // Körper (
+            ctx.beginPath();
+            ctx.ellipse(this.x, this.y + this.vy, this.size, this.size / 2, 0, 0, Math.PI * 2);
+            ctx.fillStyle = this.bodyAndHeadColor; // (hab ihr die zufällige farbe reingeacht)
+            ctx.fill();
+            ctx.closePath();
+            // Kopf 
+            ctx.beginPath();
+            ctx.arc(this.x + this.size * 0.75, this.y + this.vy, this.size / 2, 0, Math.PI * 2);
+            ctx.fillStyle = this.bodyAndHeadColor; // (hab ihr die zufällige farbe reingeacht)
+            ctx.fill();
+            ctx.closePath();
+            // Flügel (hab dir Flügel rein gemacht)
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y + this.vy - 5);
+            ctx.lineTo(this.x - this.size * 0.75, this.y + this.vy);
+            ctx.lineTo(this.x, this.y + this.vy + 5);
+            ctx.fillStyle = this.wingColor;
+            ctx.fill();
+            ctx.closePath();
+            // Beine (Hab dir noch beine dran gemacht)
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y + this.vy + this.size / 2);
+            ctx.lineTo(this.x - 5, this.y + this.vy + this.size);
+            ctx.moveTo(this.x + this.size * 0.5, this.y + this.vy + this.size / 2);
+            ctx.lineTo(this.x + 5, this.y + this.vy + this.size);
+            ctx.strokeStyle = this.legColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.closePath();
         }
     }
-    // Einzelvogel zeichnen (Helferfunktion)
-    function zeichneVoegel(ctx, x, y) {
-        // Zufällige Farbe für den Körper
-        const bodyandHeadColor = getRandomColor();
-        // Zufällige Farbe für die Flügel
-        const wingColor = getRandomColor();
-        // Zufällige Farbe für die Beine
-        const legColor = getRandomColor();
-        // Körper (oval, waagerecht)
-        ctx.beginPath();
-        ctx.ellipse(x, y, 20, 10, 0, 0, Math.PI * 2); // radiusX=20, radiusY=10 (waagerecht)
-        ctx.fillStyle = bodyandHeadColor;
-        ctx.fill();
-        ctx.closePath();
-        // Kopf (Kreis)
-        ctx.beginPath();
-        ctx.arc(x + 15, y, 10, 0, Math.PI * 2); // Kopf leicht rechts des Körpers
-        ctx.fillStyle = bodyandHeadColor;
-        ctx.fill();
-        ctx.closePath();
-        ctx.beginPath();
-        ctx.moveTo(x, y - 5); // Obere Ecke des Flügels in der Mitte des Ovals
-        ctx.lineTo(x - 15, y); // Linke Ecke des Dreiecks
-        ctx.lineTo(x, y + 5); // Rechte Ecke des Dreiecks
-        ctx.fillStyle = wingColor;
-        ctx.fill();
-        ctx.closePath();
-        // Beine (Striche, angepasst an den Körper)
-        ctx.beginPath();
-        ctx.moveTo(x, y + 10); // Linkes Bein
-        ctx.lineTo(x - 5, y + 20);
-        ctx.moveTo(x + 10, y + 10); // Rechtes Bein
-        ctx.lineTo(x + 15, y + 20);
-        ctx.strokeStyle = legColor;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.closePath();
-    }
-    // Funktion, um eine zufällige Farbe zu generieren
+    // (Funktion für die zufällige Farbe für die Vögel)
     function getRandomColor() {
         const letters = '0123456789ABCDEF';
         let color = '#';
@@ -139,184 +79,99 @@ var Aufgabe9;
         }
         return color;
     }
-    // Funktion, um Schneeflocken zu zeichnen
-    function zeichneSchneeflocken(ctx) {
+    class Schneeflocke {
+        x;
+        y;
+        size;
+        speed;
+        constructor(x, y, size, speed) {
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.speed = speed;
+        }
+        move() {
+            this.y += this.speed;
+            if (this.y > canvas.height)
+                this.y = -this.size; // Wiederholendes Rutschen nach oben
+        }
+        draw() {
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
+    const movableObjects = [];
+    function init() {
+        resizeCanvas();
+        // Hintergrund zeichnen und speichern
+        zeichneHintergrund();
+        backgroundImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        // Vögel erzeugen und in `movableObjects`hinzufügen
+        for (let i = 0; i < 20; i++) {
+            const type = Math.random() > 0.5 ? "flying" : "pecking";
+            const vogel = new Vogel(Math.random() * canvas.width, Math.random() * (canvas.height * 0.3) + (canvas.height * 0.3), type); // (hab ihr nur die zahl geändert)
+            movableObjects.push(vogel);
+        }
+        // Schneeflocken erzeugen und in `movableObjects` hinzufügen
         for (let i = 0; i < 100; i++) {
-            const x = Math.random() * canvas.width;
-            const y = Math.random() * canvas.height;
-            const size = Math.random() * 5 + 5; // Zufällige Größe zwischen 5 und 10
-            const rotation = Math.random() * Math.PI; // Zufällige Rotation
-            zeichneSchneekristall(ctx, x, y, size, rotation);
+            const flocke = new Schneeflocke(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 3 + 2, Math.random() * 1 + 0.5);
+            movableObjects.push(flocke);
         }
+        animate();
     }
-    // Funktion, um einen einzelnen Schneekristall zu zeichnen
-    function zeichneSchneekristall(ctx, x, y, size, rotation) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(rotation);
-        // Kristallarme
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = 1.5;
-        for (let i = 0; i < 6; i++) {
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(0, -size);
-            ctx.stroke();
-            // Verzweigungen an den Armen
-            for (let j = 1; j <= 2; j++) {
-                const branchSize = size / 3;
-                const branchOffset = -size * (j / 3);
-                ctx.beginPath();
-                ctx.moveTo(0, branchOffset);
-                ctx.lineTo(-branchSize, branchOffset - branchSize);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(0, branchOffset);
-                ctx.lineTo(branchSize, branchOffset - branchSize);
-                ctx.stroke();
-            }
-            ctx.rotate((Math.PI * 2) / 6); // Drehung für die nächsten Arm
+    function resizeCanvas() {
+        const scale = window.devicePixelRatio || 1;
+        canvas.style.width = `${window.innerWidth}px`;
+        canvas.style.height = `${window.innerHeight}px`;
+        canvas.width = window.innerWidth * scale;
+        canvas.height = window.innerHeight * scale;
+        ctx.scale(scale, scale);
+    }
+    function zeichneHintergrund() {
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, "skyblue");
+        gradient.addColorStop(1, "white");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        zeichneBerge();
+        zeichneBaum();
+        zeichneVogelhaus();
+        zeichneSonne();
+        zeichneWolken();
+    }
+    function zeichneBerge() {
+        // Berge zeichnen
+    }
+    function zeichneBaum() {
+        // Baum zeichnen
+    }
+    function zeichneVogelhaus() {
+        // Vogelhaus zeichnen
+    }
+    function zeichneSonne() {
+        // Sonne zeichnen
+    }
+    function zeichneWolken() {
+        // Wolken zeichnen
+    }
+    function animate() {
+        ctx.putImageData(backgroundImage, 0, 0); // Hintergrund wiederherstellen
+        // Alle beweglichen Objekte bewegen und zeichnen
+        for (let obj of movableObjects) {
+            obj.move();
+            obj.draw();
         }
-        ctx.restore();
+        requestAnimationFrame(animate);
     }
-    // Funktion, um die Berge zu zeichnen
-    function zeichneBerge(ctx) {
-        const bergFarben = ["#4B5320", "#6B8E23", "#8B4513"]; // Verschiedene Farbtöne für die Berge
-        let startX = -200; // Startposition für den ersten Berg
-        // Wir erstellen 5 Berge nebeneinander
-        for (let i = 0; i < 5; i++) {
-            ctx.fillStyle = bergFarben[i % bergFarben.length]; // Farbwechsel für verschiedene Berge
-            ctx.beginPath();
-            // Zufällige Gipfelhöhe und Positionen für jeden Berg
-            const randomHeight = Math.random() * 100 + 100; // Gipfelhöhe zufällig
-            const randomOffset = Math.random() * 50 - 25; // Kleine zufällige Verschiebung für die Gipfel
-            const peakX = startX + 200 + randomOffset; // X-Position des Gipfels
-            const peakY = canvas.height - randomHeight; // Y-Position des Gipfels
-            ctx.moveTo(startX, canvas.height); // Startpunkt auf der unteren Linie
-            // Erstelle den linken Gipfel
-            ctx.lineTo(peakX, peakY);
-            // Erstelle den rechten Gipfel
-            ctx.lineTo(startX + 400 + randomOffset, canvas.height);
-            ctx.closePath();
-            ctx.fill();
-            // Verschiebe die Startposition für den nächsten Berg (Überlappung)
-            startX += 400 + randomOffset;
-        }
-    }
-    function zeichneSchneemann(ctx) {
-        // Position des Schneemanns so setzen, dass er am unteren Rand erscheint
-        const x = canvas.width * 0.2; // X-Position bleibt gleich
-        const y = canvas.height - 40; // Y-Position so setzen, dass der Schneemann am unteren Rand erscheint
-        // Körper
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        ctx.arc(x, y, 40, 0, Math.PI * 2); // Unterkörper
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(x, y - 60, 30, 0, Math.PI * 2); // Mittelteil
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(x, y - 100, 20, 0, Math.PI * 2); // Kopf
-        ctx.fill();
-        // Augen (schwarze Kreise)
-        ctx.fillStyle = "black";
-        ctx.beginPath();
-        ctx.arc(x - 6, y - 105, 3, 0, Math.PI * 2); // Linkes Auge
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(x + 6, y - 105, 3, 0, Math.PI * 2); // Rechtes Auge
-        ctx.fill();
-        // Nase (oranges Dreieck)
-        ctx.fillStyle = "orange";
-        ctx.beginPath();
-        ctx.moveTo(x, y - 100); // Spitze der Nase
-        ctx.lineTo(x + 10, y - 95); // Rechte Kante
-        ctx.lineTo(x, y - 90); // Untere Kante
-        ctx.closePath();
-        ctx.fill();
-        // Mund (kleine schwarze Punkte)
-        ctx.fillStyle = "black";
-        for (let i = -10; i <= 10; i += 5) {
-            ctx.beginPath();
-            ctx.arc(x + i, y - 92, 2, 0, Math.PI * 2); // Punkte für den Mund
-            ctx.fill();
-        }
-        // Hut (schwarzer Zylinder)
-        ctx.fillStyle = "black";
-        ctx.fillRect(x - 15, y - 130, 30, 20); // Zylinder
-        ctx.fillRect(x - 25, y - 110, 50, 5); // Hutkrempe
-        // Knöpfe (schwarze Kreise auf dem Mittelteil)
-        for (let i = -40; i <= -20; i += 10) {
-            ctx.beginPath();
-            ctx.arc(x, y + i, 3, 0, Math.PI * 2); // Knopf
-            ctx.fill();
-        }
-    }
-    function zeichneWolken(ctx) {
-        // Wolkenpositionen
-        const wolkenPositionen = [
-            { x: 200, y: 150 },
-            { x: 400, y: 100 },
-            { x: 600, y: 180 }
-        ];
-        ctx.fillStyle = "white";
-        wolkenPositionen.forEach(pos => {
-            ctx.beginPath(); // Starte einen neuen Pfad für die gesamte Wolke
-            ctx.ellipse(pos.x, pos.y, 50, 30, 0, 0, Math.PI * 2); // Hauptwolke
-            ctx.ellipse(pos.x - 30, pos.y + 10, 40, 25, 0, 0, Math.PI * 2); // Linke Wolke
-            ctx.ellipse(pos.x + 30, pos.y + 10, 40, 25, 0, 0, Math.PI * 2); // Rechte Wolke
-            ctx.fill(); // Fülle die gesamte Wolke
-            ctx.closePath(); // Schließe den Pfad
-        });
-    }
-    function zeichneBaum(ctx) {
-        // Baumpositionen entlang der x-Achse
-        const baumPositionen = [
-            { x: 100 },
-            { x: 300 },
-            { x: 500 },
-            { x: 700 }
-        ];
-        baumPositionen.forEach(pos => {
-            const boden = canvas.height; // Unterkante des Canvas als Referenz
-            // Stamm
-            ctx.fillStyle = "brown";
-            ctx.fillRect(pos.x - 10, boden - 40, 20, 40); // Positionierung am Boden
-            // Baumkronen (Dreiecke)
-            ctx.fillStyle = "green";
-            // Unterstes Dreieck
-            ctx.beginPath();
-            ctx.moveTo(pos.x - 30, boden - 40); // Linke untere Ecke
-            ctx.lineTo(pos.x + 30, boden - 40); // Rechte untere Ecke
-            ctx.lineTo(pos.x, boden - 100); // Spitze
-            ctx.closePath();
-            ctx.fill();
-            // Mittleres Dreieck
-            ctx.beginPath();
-            ctx.moveTo(pos.x - 25, boden - 70); // Linke untere Ecke
-            ctx.lineTo(pos.x + 25, boden - 70); // Rechte untere Ecke
-            ctx.lineTo(pos.x, boden - 120); // Spitze
-            ctx.closePath();
-            ctx.fill();
-            // Oberstes Dreieck
-            ctx.beginPath();
-            ctx.moveTo(pos.x - 20, boden - 100); // Linke untere Ecke
-            ctx.lineTo(pos.x + 20, boden - 100); // Rechte untere Ecke
-            ctx.lineTo(pos.x, boden - 140); // Spitze
-            ctx.closePath();
-            ctx.fill();
-        });
-    }
-    function zeichneSonne(ctx) {
-        // Sonne (Kreis oben rechts)
-        const sonnenRadius = 50;
-        const sonnenX = canvas.width - 100;
-        const sonnenY = 100;
-        ctx.fillStyle = "yellow";
-        ctx.beginPath();
-        ctx.arc(sonnenX, sonnenY, sonnenRadius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.closePath();
-    }
+    // ("animate();"" muss raus sonst funktioniert es nicht)
+    window.addEventListener("resize", () => {
+        resizeCanvas();
+        zeichneHintergrund();
+        backgroundImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    });
+    init();
 })(Aufgabe9 || (Aufgabe9 = {}));
 //# sourceMappingURL=vogelhaus.js.map
