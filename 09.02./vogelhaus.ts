@@ -1,183 +1,219 @@
 namespace Aufgabe9 {
-  const canvas = document.getElementById("winterScene") as HTMLCanvasElement;
-  const ctx = canvas.getContext("2d")!;
-  let backgroundImage: ImageData;
+    const canvas = document.getElementById("winterScene") as HTMLCanvasElement;
+    const ctx = canvas.getContext("2d")!;
+    let backgroundImage: ImageData;
 
-  interface Movable {
-    move(): void;
-    draw(): void;
-  }
-
-  class Vogel implements Movable {
-    x: number;
-    y: number;
-    vx: number;
-    vy: number;
-    type: "flying" | "pecking";
-
-    constructor(x: number, y: number, type: "flying" | "pecking") {
-      this.x = x;
-      this.y = y;
-      this.type = type;
-      this.vx = type === "flying" ? Math.random() * 2 + 1 : 0;
-      this.vy = 0;
+    interface Movable {
+        move(): void;
+        draw(): void;
     }
 
-    move() {
-      if (this.type === "flying") {
-        this.x += this.vx;
-        if (this.x > canvas.width) this.x = -20; // Wiederholender Flug
-      } else {
-        // Pecking Bewegung (leichtes Hüpfen)
-        this.vy = Math.sin(Date.now() / 500) * 0.5;
-      }
+    class Vogel implements Movable {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        type: "flying" | "pecking";
+        bodyAndHeadColor: string;   //( hab ihr noch die Kopf und Körperfarbe reingemacht)
+        wingColor: string; //(habe dem Flügel Farbe gegeben)
+        legColor: string; // ( habe beine auch eine Farbe gegeben)
+        size: number;  // Größe des Vogels (hab ihr noch rein gemacht das du die Vogel größe ändern kannst)
+
+        constructor(x: number, y: number, type: "flying" | "pecking") {
+            this.x = x;
+            this.y = y;
+            this.type = type;
+            this.vx = Math.random() * 2 + 1; // (Vögel Geschwindigkeit nach rechts)
+            this.vy = Math.sin(Date.now() / 500) * 5; // (Vertikale Bewegung)
+            this.size = Math.random() * 15 + 10; // (Größe der Vögel)
+
+            // (Farben für die Vögel)
+            this.bodyAndHeadColor = getRandomColor();
+            this.wingColor = getRandomColor();
+            this.legColor = getRandomColor();
+        }
+
+        move() {  
+            this.x += this.vx;
+            this.vy = Math.sin(Date.now() / 500) * 5; //(hab ihr noch die Vertikale Bewegung reingemacht)
+
+            if (this.x > canvas.width) this.x = -this.size; // Wiederholender Flug (hab dir die nur bissle abgeändert das es tut)
+
+            // (horizontale Bewegung für pickende Vögel hab die bedingung angepasst)
+            if (this.type === "pecking") {
+                // Pecking Bewegung (leichtes Hüpfen)
+                this.x += Math.random() * 0.5 - 0.25;  
+            }
+        }
+
+        draw() {
+            // Körper (
+            ctx.beginPath();
+            ctx.ellipse(this.x, this.y + this.vy, this.size, this.size / 2, 0, 0, Math.PI * 2); 
+            ctx.fillStyle = this.bodyAndHeadColor; // (hab ihr die zufällige farbe reingeacht)
+            ctx.fill();
+            ctx.closePath();
+
+            // Kopf 
+            ctx.beginPath();
+            ctx.arc(this.x + this.size * 0.75, this.y + this.vy, this.size / 2, 0, Math.PI * 2); 
+            ctx.fillStyle = this.bodyAndHeadColor; // (hab ihr die zufällige farbe reingeacht)
+            ctx.fill();
+            ctx.closePath();
+
+            
+            // Flügel (hab dir Flügel rein gemacht)
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y + this.vy - 5); 
+            ctx.lineTo(this.x - this.size * 0.75, this.y + this.vy); 
+            ctx.lineTo(this.x, this.y + this.vy + 5); 
+            ctx.fillStyle = this.wingColor;
+            ctx.fill();
+            ctx.closePath();
+
+            // Beine (Hab dir noch beine dran gemacht)
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y + this.vy + this.size / 2); 
+            ctx.lineTo(this.x - 5, this.y + this.vy + this.size);
+            ctx.moveTo(this.x + this.size * 0.5, this.y + this.vy + this.size / 2); 
+            ctx.lineTo(this.x + 5, this.y + this.vy + this.size);
+            ctx.strokeStyle = this.legColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.closePath();
+        }
     }
 
-    draw() {
-      // Körper
-      ctx.fillStyle = "brown";
-      ctx.beginPath();
-      ctx.ellipse(this.x, this.y + this.vy, 20, 10, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.closePath();
-
-      // Kopf
-      ctx.beginPath();
-      ctx.arc(this.x + 15, this.y - 5 + this.vy, 8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.closePath();
-
-      // Schnabel
-      ctx.fillStyle = "orange";
-      ctx.beginPath();
-      ctx.moveTo(this.x + 20, this.y - 5 + this.vy);
-      ctx.lineTo(this.x + 30, this.y);
-      ctx.lineTo(this.x + 20, this.y + 5 + this.vy);
-      ctx.closePath();
-      ctx.fill();
-    }
-  }
-
-  class Schneeflocke implements Movable {
-    x: number;
-    y: number;
-    size: number;
-    speed: number;
-
-    constructor(x: number, y: number, size: number, speed: number) {
-      this.x = x;
-      this.y = y;
-      this.size = size;
-      this.speed = speed;
+    // (Funktion für die zufällige Farbe für die Vögel)
+    function getRandomColor(): string {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
     }
 
-    move() {
-      this.y += this.speed;
-      if (this.y > canvas.height) this.y = -this.size; // Wiederholendes Rutschen nach oben
+    class Schneeflocke implements Movable {
+        x: number;
+        y: number;
+        size: number;
+        speed: number;
+
+        constructor(x: number, y: number, size: number, speed: number) {
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.speed = speed;
+        }
+
+        move() {
+            this.y += this.speed;
+            if (this.y > canvas.height) this.y = -this.size; // Wiederholendes Rutschen nach oben
+        }
+
+        draw() {
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+        }
     }
 
-    draw() {
-      ctx.fillStyle = "white";
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.closePath();
-    }
-  }
+    const movableObjects: Movable[] = [];
 
-  const movableObjects: Movable[] = [];
+    function init() {
+        resizeCanvas();
 
-  function init() {
-    resizeCanvas();
+        // Hintergrund zeichnen und speichern
+        zeichneHintergrund();
+        backgroundImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    // Hintergrund zeichnen und speichern
-    zeichneHintergrund();
-    backgroundImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        // Vögel erzeugen und in `movableObjects`hinzufügen
+        for (let i = 0; i < 20; i++) {
+            const type: "flying" | "pecking" = Math.random() > 0.5 ? "flying" : "pecking";
+            const vogel = new Vogel(Math.random() * canvas.width,Math.random() * (canvas.height * 0.3) + (canvas.height * 0.3),type ); // (hab ihr nur die zahl geändert)
+            movableObjects.push(vogel);
+        }
 
-    // Vögel erzeugen und in `movableObjects` hinzufügen
-    for (let i = 0; i < 10; i++) {
-      const type = Math.random() > 0.5 ? "flying" : "pecking";
-      const vogel = new Vogel(Math.random() * canvas.width, canvas.height * 0.7, type);
-      movableObjects.push(vogel);
-    }
+        // Schneeflocken erzeugen und in `movableObjects` hinzufügen
+        for (let i = 0; i < 100; i++) {
+            const flocke = new Schneeflocke(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height,
+                Math.random() * 3 + 2,
+                Math.random() * 1 + 0.5
+            );
+            movableObjects.push(flocke);
+        }
 
-    // Schneeflocken erzeugen und in `movableObjects` hinzufügen
-    for (let i = 0; i < 100; i++) {
-      const flocke = new Schneeflocke(
-        Math.random() * canvas.width,
-        Math.random() * canvas.height,
-        Math.random() * 3 + 2,
-        Math.random() * 1 + 0.5
-      );
-      movableObjects.push(flocke);
+        animate();
     }
 
-    animate();
-  }
-
-  function resizeCanvas() {
-    const scale = window.devicePixelRatio || 1;
-    canvas.style.width = `${window.innerWidth}px`;
-    canvas.style.height = `${window.innerHeight}px`;
-    canvas.width = window.innerWidth * scale;
-    canvas.height = window.innerHeight * scale;
-    ctx.scale(scale, scale);
-  }
-
-  function zeichneHintergrund() {
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, "skyblue");
-    gradient.addColorStop(1, "white");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    zeichneBerge();
-    zeichneBaum();
-    zeichneVogelhaus();
-    zeichneSonne();
-    zeichneWolken();
-  }
-
-  function zeichneBerge() {
-    // Berge zeichnen
-  }
-
-  function zeichneBaum() {
-    // Baum zeichnen
-  }
-
-  function zeichneVogelhaus() {
-    // Vogelhaus zeichnen
-  }
-
-  function zeichneSonne() {
-    // Sonne zeichnen
-  }
-
-  function zeichneWolken() {
-    // Wolken zeichnen
-  }
-
-  function animate() {
-    ctx.putImageData(backgroundImage, 0, 0); // Hintergrund wiederherstellen
-
-    // Alle beweglichen Objekte bewegen und zeichnen
-    for (let obj of movableObjects) {
-      obj.move();
-      obj.draw();
+    function resizeCanvas() {
+        const scale = window.devicePixelRatio || 1;
+        canvas.style.width = `${window.innerWidth}px`;
+        canvas.style.height = `${window.innerHeight}px`;
+        canvas.width = window.innerWidth * scale;
+        canvas.height = window.innerHeight * scale;
+        ctx.scale(scale, scale);
     }
 
-    requestAnimationFrame(animate);
-  }
-  animate();
+    function zeichneHintergrund() {
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, "skyblue");
+        gradient.addColorStop(1, "white");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  window.addEventListener("resize", () => {
-    resizeCanvas();
-    zeichneHintergrund();
-    backgroundImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  });
+        zeichneBerge();
+        zeichneBaum();
+        zeichneVogelhaus();
+        zeichneSonne();
+        zeichneWolken();
+    }
 
-  init();
+    function zeichneBerge() {
+        // Berge zeichnen
+    }
+
+    function zeichneBaum() {
+        // Baum zeichnen
+    }
+
+    function zeichneVogelhaus() {
+        // Vogelhaus zeichnen
+    }
+
+    function zeichneSonne() {
+        // Sonne zeichnen
+    }
+
+    function zeichneWolken() {
+        // Wolken zeichnen
+    }
+
+
+
+    function animate() {
+        
+        ctx.putImageData(backgroundImage, 0, 0); // Hintergrund wiederherstellen
+
+        // Alle beweglichen Objekte bewegen und zeichnen
+        for (let obj of movableObjects) {
+            obj.move();
+            obj.draw();
+        }
+
+        requestAnimationFrame(animate);
+    }
+        // ("animate();"" muss raus sonst funktioniert es nicht)
+    window.addEventListener("resize", () => {
+        resizeCanvas();
+        zeichneHintergrund();
+        backgroundImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    });
+
+    init();
 }
-
-  
